@@ -20,41 +20,45 @@ public class AuthController {
 
     // Register a new user or producer
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserOrProducer request) {
-        if ("Consumer".equalsIgnoreCase(request.getRole())) {
-            User user = new User(request.getName(), request.getEmail(), request.getPassword());
-            if (userService.existsByEmail(user.getEmail()) || userService.existsByName(user.getName())) {
-                return ResponseEntity.badRequest().body("User with this email or name already exists.");
+    public ResponseEntity<?> register(@RequestBody UserOrProducer request) {
+        try {
+            if ("Consumer".equalsIgnoreCase(request.getRole())) {
+                User user = new User(request.getName(), request.getEmail(), request.getPassword());
+                if (userService.existsByEmail(user.getEmail()) || userService.existsByName(user.getName())) {
+                    return ResponseEntity.badRequest().body(new RegisterResponse("User with this email or name already exists.", null));
+                }
+                User savedUser = userService.registerUser(user);
+                return ResponseEntity.ok(new RegisterResponse("User registered successfully.", savedUser.getId()));
+            } else if ("Producer".equalsIgnoreCase(request.getRole())) {
+                Producer producer = new Producer(request.getName(), request.getEmail(), request.getPassword());
+                if (producerService.existsByEmail(producer.getEmail()) || producerService.existsByName(producer.getName())) {
+                    return ResponseEntity.badRequest().body(new RegisterResponse("Producer with this email or name already exists.", null));
+                }
+                Producer savedProducer = producerService.registerProducer(producer);
+                return ResponseEntity.ok(new RegisterResponse("Producer registered successfully.", savedProducer.getId()));
+            } else {
+                return ResponseEntity.badRequest().body(new RegisterResponse("Invalid role specified.", null));
             }
-            userService.registerUser(user);
-            return ResponseEntity.ok("User registered successfully.");
-        } else if ("Producer".equalsIgnoreCase(request.getRole())) {
-            Producer producer = new Producer(request.getName(), request.getEmail(), request.getPassword());
-            if (producerService.existsByEmail(producer.getEmail()) || producerService.existsByName(producer.getName())) {
-                return ResponseEntity.badRequest().body("Producer with this email or name already exists.");
-            }
-            producerService.registerProducer(producer);
-            return ResponseEntity.ok("Producer registered successfully.");
-        } else {
-            return ResponseEntity.badRequest().body("Invalid role specified.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new RegisterResponse("Error occurred during registration.", null));
         }
     }
 
     // Login a user or producer
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserOrProducer request) {
+    public ResponseEntity<?> login(@RequestBody UserOrProducer request) {
         try {
             if ("Consumer".equalsIgnoreCase(request.getRole())) {
-                userService.loginUser(request.getEmail(), request.getPassword());
-                return ResponseEntity.ok("User logged in successfully.");
+                User user = userService.loginUser(request.getEmail(), request.getPassword());
+                return ResponseEntity.ok(new LoginResponse("User logged in successfully.", user.getId()));
             } else if ("Producer".equalsIgnoreCase(request.getRole())) {
-                producerService.loginProducer(request.getEmail(), request.getPassword());
-                return ResponseEntity.ok("Producer logged in successfully.");
+                Producer producer = producerService.loginProducer(request.getEmail(), request.getPassword());
+                return ResponseEntity.ok(new LoginResponse("Producer logged in successfully.", producer.getId()));
             } else {
-                return ResponseEntity.badRequest().body("Invalid role specified.");
+                return ResponseEntity.badRequest().body(new LoginResponse("Invalid role specified.", null));
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(401).body(new LoginResponse(e.getMessage(), null));
         }
     }
 
@@ -96,6 +100,62 @@ public class AuthController {
 
         public void setRole(String role) {
             this.role = role;
+        }
+    }
+
+    // Response class for registration
+    public static class RegisterResponse {
+        private String message;
+        private String userId;
+
+        public RegisterResponse(String message, String userId) {
+            this.message = message;
+            this.userId = userId;
+        }
+
+        // Getters and Setters
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+    }
+
+    // Response class for login
+    public static class LoginResponse {
+        private String message;
+        private String userId;
+
+        public LoginResponse(String message, String userId) {
+            this.message = message;
+            this.userId = userId;
+        }
+
+        // Getters and Setters
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
         }
     }
 }

@@ -7,5 +7,6 @@ public interface ProducerRespitory extends MongoRepository<Producer, String> {
     Optional<Producer> findByEmail(String email);
     Boolean existsByName(String name);
     Boolean existsByEmail(String email);
+    boolean existsById(String id);
     Optional<Producer> findByName(String username);
 }

@@ -11,7 +11,7 @@ public class Producer {
     private String name;
     private String email;
     private String password;
-    private String role = "Producer";
+    // private String role = "Producer";
 
     public Producer() {}
 

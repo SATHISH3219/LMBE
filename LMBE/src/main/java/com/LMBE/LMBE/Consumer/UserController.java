@@ -1,36 +1,38 @@
-// package com.LMBE.LMBE.Consumer;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.web.bind.annotation.*;
+package com.LMBE.LMBE.Consumer;
 
+import com.LMBE.LMBE.Producer.Products.Product;
+import com.LMBE.LMBE.Producer.Products.ProductRepository;
 
-// @RestController
-// @RequestMapping("/api")
-// public class UserController {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-//     @Autowired
-//     private UserService userService;
+import java.util.List;
 
-//     @PostMapping("/register")
-//     public ResponseEntity<?> registerUser(@RequestBody User user) {
-//         if (userService.existsByName(user.getName())) {
-//             return ResponseEntity.badRequest().body("Username is already taken!");
-//         }
-//         if (userService.existsByEmail(user.getEmail())) {
-//             return ResponseEntity.badRequest().body("Email is already in use!");
-//         }
-//         return ResponseEntity.ok(userService.registerUser(user));
-//     }
+@RestController
+@RequestMapping("/consumer")
+public class UserController {
 
-//     @PostMapping("/login")
-//     public ResponseEntity<?> loginUser(@RequestBody User user) {
-//         try {
-//             User authenticatedUser = userService.loginUser(user.getEmail(),user.getPassword());
-//             return ResponseEntity.ok(authenticatedUser);
-//         } catch (Exception e) {
-//             return ResponseEntity.badRequest().body("Invalid credentials!");
-//         }
-//     }
-    
-// }
+    @Autowired
+    private ProductRepository productRepository; // Autowire the ProductRepository
+
+    @GetMapping("/allproducts")
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<Product> products = productRepository.findAll(); // Retrieve all products
+
+            if (products.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No products found");
+            }
+
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            // Catch any exception and return a 500 error
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving products: " + e.getMessage());
+        }
+    }
+}

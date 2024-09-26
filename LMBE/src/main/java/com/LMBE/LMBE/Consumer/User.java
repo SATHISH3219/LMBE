@@ -11,7 +11,7 @@ public class User {
     private String name;
     private String email;
     private String password;
-    private String role = "Consumer";
+    // private String role = "Consumer";
 
     // Constructors
     public User() {}
