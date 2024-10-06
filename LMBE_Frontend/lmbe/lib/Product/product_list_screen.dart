@@ -28,18 +28,12 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Future<void> _fetchProducts() async {
-    print("Producer ID: ${widget.producerId}");
     String apiUrl = 'http://192.168.169.31:8080/api/products/producer/${widget.producerId}';
-    print("Sending request to: $apiUrl");
-
     try {
       var response = await http.get(
         Uri.parse(apiUrl),
         headers: <String, String>{ 'Content-Type': 'application/json' },
       );
-
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         setState(() {
@@ -58,7 +52,6 @@ class _ProductPageState extends State<ProductPage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to fetch products')));
       }
     } catch (e) {
-      print("Error: $e");
       setState(() { isLoading = false; });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
@@ -67,7 +60,7 @@ class _ProductPageState extends State<ProductPage> {
   Future<void> _createProduct() async {
     String apiUrl = 'http://192.168.169.31:8080/api/products/create';
     var productData = jsonEncode({
-      "producerId": widget.producerId,  // Assign producer ID to the product
+      "producerId": widget.producerId,
       "productName": _productNameController.text,
       "description": _descriptionController.text,
       "price": double.parse(_priceController.text),
@@ -81,9 +74,6 @@ class _ProductPageState extends State<ProductPage> {
         body: productData,
       );
 
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Product created successfully!')));
         _fetchProducts(); // Reload products after creating a new one
@@ -91,7 +81,6 @@ class _ProductPageState extends State<ProductPage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to create product')));
       }
     } catch (e) {
-      print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
@@ -101,7 +90,7 @@ class _ProductPageState extends State<ProductPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Products'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: const Color.fromARGB(255, 10, 131, 253),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -129,6 +118,11 @@ class _ProductPageState extends State<ProductPage> {
                       child: ElevatedButton(
                         onPressed: () => _showProductDialog(context),
                         child: Text("Add New Product"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 41, 146, 188), // Button color
+                          padding: EdgeInsets.symmetric(vertical: 20,horizontal: 25),
+                          textStyle: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
                   ],
@@ -142,28 +136,30 @@ class _ProductPageState extends State<ProductPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Add New Product'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _productNameController,
-                decoration: InputDecoration(labelText: 'Product Name'),
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-              ),
-              TextField(
-                controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: _quantityController,
-                decoration: InputDecoration(labelText: 'Quantity'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _productNameController,
+                  decoration: InputDecoration(labelText: 'Product Name'),
+                ),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                ),
+                TextField(
+                  controller: _priceController,
+                  decoration: InputDecoration(labelText: 'Price (in ₹)'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: _quantityController,
+                  decoration: InputDecoration(labelText: 'Quantity'),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
           ),
           actions: [
             ElevatedButton(
@@ -242,7 +238,7 @@ class ProductCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Text(
-              '\$${price.toStringAsFixed(2)}',
+              '₹${price.toStringAsFixed(2)}', // Display price in INR
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
             ),
           ),

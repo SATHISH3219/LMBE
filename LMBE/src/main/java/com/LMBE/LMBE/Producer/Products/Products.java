@@ -1,12 +1,9 @@
 package com.LMBE.LMBE.Producer.Products;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "products")
-public class Product {
-    
-    @Id
+public class Products {
+      @Id
     private String id;
     private String producerId;
     private String productName;
@@ -15,10 +12,10 @@ public class Product {
     private int quantity;
 
     // Constructors
-    public Product() {
+    public Products() {
     }
 
-    public Product(String producerId, String productName, String description, double price, int quantity) {
+    public Products(String producerId, String productName, String description, double price, int quantity) {
         this.producerId = producerId;
         this.productName = productName;
         this.description = description;

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lmbe/Product/create_product_screen.dart';
+import 'package:lmbe/Product/product_list_screen.dart';
 import '../Home/Home.dart';
 import 'register.dart';
 import '../Constant/constant.dart';
@@ -63,13 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CreateProductScreen(producerId: userId),
-                ),
-              );
-            } else {
+                  builder: (context) => CreateProductScreen(producerId: userId)),
+                );
+                          } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) =>HomePage(userId: userId,)),
               );
             }
           }

@@ -69,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             } else {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) => HomePage(userId: userId,)),
               );
             }
           }

@@ -23,7 +23,7 @@ public class ProductController {
 
     // Create a product for a specific producer
     @PostMapping("/create")
-    public ResponseEntity<String> createProduct(@RequestBody Product productRequest) {
+    public ResponseEntity<String> createProduct(@RequestBody Products productRequest) {
         // Validate product request
         if (productRequest.getProducerId() == null || productRequest.getProductName() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -34,7 +34,7 @@ public class ProductController {
         Optional<Producer> producer = producerRepository.findById(productRequest.getProducerId());
         if (producer.isPresent()) {
             try {
-                Product product = new Product(
+                Products product = new Products(
                         productRequest.getProducerId(),
                         productRequest.getProductName(),
                         productRequest.getDescription(),
@@ -42,7 +42,7 @@ public class ProductController {
                         productRequest.getQuantity()
                 );
 
-                Product savedProduct = productRepository.save(product);
+                Products savedProduct = productRepository.save(product);
                 return ResponseEntity.ok("Product created with ID: " + savedProduct.getId());
 
             } catch (Exception e) {
@@ -62,7 +62,7 @@ public class ProductController {
         Optional<Producer> producer = producerRepository.findById(producerId);
         if (producer.isPresent()) {
             try {
-                List<Product> products = productRepository.findByProducerId(producerId);
+                List<Products> products = productRepository.findByProducerId(producerId);
                 if (products.isEmpty()) {
                     return ResponseEntity.status(HttpStatus.NO_CONTENT)
                             .body("No products found for Producer ID: " + producerId);
@@ -83,7 +83,7 @@ public class ProductController {
     @GetMapping("/allproducts")
     public ResponseEntity<?> getAllProducts() {
         try {
-            List<Product> products = productRepository.findAll(); // Fetch all products
+            List<Products> products = productRepository.findAll(); // Fetch all products
             if (products.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No products found");
             }

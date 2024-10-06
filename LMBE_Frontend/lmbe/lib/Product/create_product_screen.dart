@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lmbe/Product/product_list_screen.dart';
 
 class CreateProductScreen extends StatefulWidget {
   final String producerId;
@@ -18,51 +19,84 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   int? _quantity;
 
   Future<void> _addProduct() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  if (_formKey.currentState!.validate()) {
+    _formKey.currentState!.save();
 
-      String apiUrl ='http://192.168.169.31:8080/api/products/create'; // Replace with your API URL
-      Map<String, dynamic> productData = {
-        'producerId': widget.producerId,
-        'productName': _productName!,
-        'description': _description!,
-        'price': _price!,
-        'quantity': _quantity!,
-      };
+    String apiUrl = 'http://192.168.169.31:8080/api/products/create'; // Replace with your API URL
+    Map<String, dynamic> productData = {
+      'producerId': widget.producerId,
+      'productName': _productName!,
+      'description': _description!,
+      'price': _price!,
+      'quantity': _quantity!,
+    };
 
-      try {
-        var response = await http.post(
-          Uri.parse(apiUrl),
-          headers: <String, String>{
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(productData),
-        );
+    try {
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(productData),
+      );
 
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Product added successfully')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add product.')),
-          );
-        }
-      } catch (e) {
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Product added successfully')),
+        );
+        
+        // Reset the form fields
+        _formKey.currentState!.reset(); // This will reset the form fields
+
+        // Optionally, you can clear the saved values
+        setState(() {
+          _productName = null;
+          _description = null;
+          _price = null;
+          _quantity = null;
+        });
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductPage(producerId: widget.producerId),
+          ),
+        ); // Navigate to ProductPage after product creation
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add product.')),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Product'),
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 62, 153, 233),
         elevation: 4,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.list_alt),
+            onPressed: () {
+              // Navigate to the product list screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductPage(producerId: widget.producerId),
+                ),
+              );
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -72,10 +106,6 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Add New Product',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.teal),
-                ),
                 SizedBox(height: 30),
                 _buildTextField(
                   label: 'Product Name',
@@ -116,16 +146,42 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                   child: ElevatedButton(
                     onPressed: _addProduct,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 5,
+                      backgroundColor: const Color.fromARGB(255, 33, 166, 255),
                     ),
                     child: Text(
                       'Add Product',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to the product list screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductPage(
+                              producerId: widget.producerId),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.view_list),
+                    label: Text("View Products"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 77, 153, 253),
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
                   ),
                 ),
